@@ -1,10 +1,11 @@
+import sys
+
 import anyio
 import click
+import httpx
 import mcp.types as types
 from mcp.server.lowlevel import Server
 from pydantic import FileUrl
-import sys
-import httpx
 
 SAMPLE_RESOURCES = {
     "greeting": "Hello! This is a sample text resource.2222",
@@ -90,8 +91,8 @@ def main(port: int, transport: str) -> int:
     if transport == "sse":
         from mcp.server.sse import SseServerTransport
         from starlette.applications import Starlette
-        from starlette.routing import Mount, Route
         from starlette.middleware.cors import CORSMiddleware
+        from starlette.routing import Mount, Route
 
         sse = SseServerTransport("/messages/")
 

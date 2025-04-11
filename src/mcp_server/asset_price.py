@@ -1,8 +1,13 @@
+import asyncio
 from typing import Literal
-from fastmcp import FastMCP
-from price_loaders.tradingview import load_asset_price
+
 import click
 import pytz
+import uvicorn
+from fastmcp import FastMCP
+from mcp.server.sse import SseServerTransport
+from price_loaders.tradingview import load_asset_price
+
 mcp = FastMCP("Asset Price")
 
 
@@ -44,11 +49,44 @@ def get_asset_price(
             timestamp and OHLCV (Open, High, Low, Close, Volume) data.
     """  # noqa: E501
 
-    if timezone is None:
-        timezone = pytz.timezone("America/New_York")
     timezone_obj = pytz.timezone(timezone)
     df = load_asset_price(symbol, look_back_bars, time_frame, timezone_obj)
     return df.to_dict(orient="records")
+
+
+async def run_sse_async(mcp: FastMCP) -> None:
+    """Run the server using SSE transport."""
+    from starlette.applications import Starlette
+    from starlette.routing import Mount, Route
+
+    sse = SseServerTransport("/messages/")
+
+    async def handle_sse(request):
+        async with sse.connect_sse(
+            request.scope, request.receive, request._send
+        ) as streams:
+            await mcp._mcp_server.run(
+                streams[0],
+                streams[1],
+                mcp._mcp_server.create_initialization_options(),
+            )
+
+    starlette_app = Starlette(
+        debug=mcp.settings.debug,
+        routes=[
+            Route("/sse", endpoint=handle_sse),
+            Mount("/messages/", app=sse.handle_post_message),
+        ],
+    )
+
+    config = uvicorn.Config(
+        starlette_app,
+        host=mcp.settings.host,
+        port=mcp.settings.port,
+        log_level=mcp.settings.log_level.lower(),
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
 
 
 @click.command()
@@ -60,7 +98,10 @@ def get_asset_price(
     help="Transport type",
 )
 def main(port: int, transport: str) -> int:
-    mcp.run(transport=transport)
+    if transport == "stdio":
+        mcp.run(transport=transport)
+    elif transport == "sse":
+        asyncio.run(run_sse_async(mcp))
 
 
 if __name__ == "__main__":
