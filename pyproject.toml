@@ -13,3 +13,8 @@ dependencies = [
 
 [tool.uv.sources]
 price-loaders = { git = "git+https://github.com/batprem/price-loaders", branch = "batprem-patch-1" }
+
+[dependency-groups]
+dev = [
+    "isort>=6.0.1",
+]
