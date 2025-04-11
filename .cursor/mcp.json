@@ -13,6 +13,12 @@
             "env": {
                 "API_KEY": "value"
             }
+        },
+        "asset-price-sse-server": {
+            "url": "http://localhost:8000/sse",
+            "env": {
+                "API_KEY": "value"
+            }
         }
     }
 }
