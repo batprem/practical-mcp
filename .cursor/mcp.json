@@ -1,0 +1,18 @@
+{
+    "mcpServers": {
+        "fastmcp-server": {
+            "command": "uv",
+            "args": ["run", "python", "src/mcp_server/__main__.py"],
+            "env": {
+                "API_KEY": "value"
+            }
+        },
+        "asset-price-server": {
+            "command": "/Users/premchotipanit/Documents/page_contents/mcp/try-fastmcp/.venv/bin/python3",
+            "args": ["-m", "mcp_server.asset_price"],
+            "env": {
+                "API_KEY": "value"
+            }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+[project]
+name = "try-fastmcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=0.4.1",
+    "price-loaders",
+    "websocket-client>=1.8.0",
+    "websocket>=0.2.1",
+]
+
+[tool.uv.sources]
+price-loaders = { git = "git+https://github.com/batprem/price-loaders", branch = "batprem-patch-1" }
