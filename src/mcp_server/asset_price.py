@@ -54,7 +54,7 @@ def get_asset_price(
     return df.to_dict(orient="records")
 
 
-async def run_sse_async(mcp: FastMCP) -> None:
+async def run_sse_async(mcp: FastMCP, host: str, port: int) -> None:
     """Run the server using SSE transport."""
     from starlette.applications import Starlette
     from starlette.routing import Mount, Route
@@ -81,8 +81,8 @@ async def run_sse_async(mcp: FastMCP) -> None:
 
     config = uvicorn.Config(
         starlette_app,
-        host=mcp.settings.host,
-        port=mcp.settings.port,
+        host=host,
+        port=port,
         log_level=mcp.settings.log_level.lower(),
     )
     server = uvicorn.Server(config)
@@ -91,17 +91,18 @@ async def run_sse_async(mcp: FastMCP) -> None:
 
 @click.command()
 @click.option("--port", default=8000, help="Port to listen on for SSE")
+@click.option("--host", default="0.0.0.0", help="Host to listen on")
 @click.option(
     "--transport",
     type=click.Choice(["stdio", "sse"]),
     default="stdio",
     help="Transport type",
 )
-def main(port: int, transport: str) -> int:
+def main(transport: str, host: str, port: int) -> int:
     if transport == "stdio":
         mcp.run(transport=transport)
     elif transport == "sse":
-        asyncio.run(run_sse_async(mcp))
+        asyncio.run(run_sse_async(mcp, host, port))
 
 
 if __name__ == "__main__":
