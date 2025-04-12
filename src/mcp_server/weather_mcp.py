@@ -1,3 +1,4 @@
+# Reference: https://github.com/adhikasp/mcp-weather
 from typing import Any
 
 import httpx

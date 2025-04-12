@@ -118,7 +118,8 @@ sequenceDiagram
     
     Client->>Server: Connect via SSE
     Server->>Client: Stream price updates
-    loop Every update
+    loop Conversation
+        Client->>Server: Use asset price tool
         Server->>Client: Send price data
     end
 ```
@@ -139,8 +140,10 @@ sequenceDiagram
     
     Client->>Server: Connect via Stdio
     Server->>Client: Acknowledge connection
-    Client->>Server: Send price request
-    Server->>Client: Return price data
+    loop Conversation
+        Client->>Server: Send price request
+        Server->>Client: Return price data
+    end
 ```
 
 1. Start the Stdio Client:
@@ -189,3 +192,8 @@ The MIT License is a permissive free software license originating at the Massach
 ## Contributing
 
 Yes, it's open :) feel free to send me PR
+
+
+## Reference
+- https://www.anthropic.com/news/model-context-protocol
+- https://github.com/modelcontextprotocol/python-sdk/tree/main/examples
